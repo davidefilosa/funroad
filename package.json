@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate": "payload generate:types"
+    "generate": "payload generate:types",
+    "db:seed": "bun run src/seed.ts",
+    "migrate:fresh": "bun run payload migrate:fresh"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -49,6 +51,7 @@
     "graphql": "^16.8.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.488.0",
+    "motion": "^12.7.4",
     "next": "15.3.0",
     "next-themes": "^0.4.6",
     "payload": "^3.35.0",
@@ -65,14 +68,14 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.0",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

@@ -1,10 +1,11 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import React from "react";
+import { Category } from "../types";
 
 interface SubcategoryMenuProps {
   isOpen?: boolean;
-  category: any;
+  category: Category;
   position: { top: number; left: number };
 }
 
@@ -22,7 +23,6 @@ export const SubcategoryMenu = ({
   }
 
   const backgroundColor = category.color || "#f5f5f5";
-  console.log(position);
 
   return (
     <div
@@ -40,7 +40,7 @@ export const SubcategoryMenu = ({
         <div>
           {category.subcategories?.map((subcategory: any) => (
             <Link
-              href="/"
+              href={`/${category.slug}/${subcategory.slug}`}
               key={subcategory.slug}
               className="w-full text-left p-4 hover:bg-black hover:text-white flex justify-between items-center underline font-medium hover:no-underline"
             >

@@ -4,6 +4,7 @@ import { Footer } from "./footer";
 import { SearchFilter } from "./search-filter";
 import configPromise from "@payload-config";
 import { getPayload } from "payload";
+import { Category } from "./types";
 
 const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
   const payload = await getPayload({ config: configPromise });
@@ -15,9 +16,12 @@ const HomeLayout = async ({ children }: { children: React.ReactNode }) => {
     where: { parent: { exists: false } },
   });
 
-  const formattedData = data.docs.map((doc) => ({
+  const formattedData: Category[] = data.docs.map((doc) => ({
     ...doc,
-    subcategories: (doc.subcategories?.docs ?? []).map((doc) => ({ ...doc })),
+    subcategories: (doc.subcategories?.docs ?? []).map((doc: Category) => ({
+      ...(doc as Category),
+      subcategories: undefined,
+    })),
   }));
 
   return (

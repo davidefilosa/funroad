@@ -8,8 +8,22 @@ import { usePathname } from "next/navigation";
 import { NavbarSidebar } from "./navbar-sidebar";
 import { useState } from "react";
 import { MenuIcon } from "lucide-react";
+import { motion } from "motion/react";
 
 const poppins = Poppins({ subsets: ["latin"], weight: "700" });
+
+const colors = [
+  "#FFB347", // Business & Money
+  "#7EC8E3", // Software Development
+  "#D8B5FF", // Writing & Publishing
+  "#FFE066", // Education
+  "#96E6B3", // Self Improvement
+  "#FF9AA2", // Fitness & Health
+  "#B5B9FF", // Design
+  "#FFCAB0", // Drawing & Painting
+  "#FFD700", // Music
+  "#FF6B6B", // Photography
+];
 
 interface NavbarItemProps {
   href: string;
@@ -43,6 +57,9 @@ const navbarItems = [
 export const Navbar = () => {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [randomColor, setRandomColor] = useState(
+    colors[Math.floor(Math.random() * colors.length)]
+  );
   return (
     <nav className="h-20 flex border-b justify-between font-medium bg-white">
       <Link href={"/"} className="pl-6 flex items-center">
@@ -53,14 +70,29 @@ export const Navbar = () => {
           )}
         >
           {"funroad".split("").map((letter, index) => (
-            <div
+            <motion.div
               key={index}
               className={cn(
-                "text-black hover:text-pink-400 transition ease-in-out transform hover:-translate-x-[4px] hover:-translate-y-[4px] hover:rotate-z-45 hover:text-shadow-[4px_4px_4px_rgb(0_0_0_/_1)]"
+                "text-black transition transform hover:-translate-x-[4px] hover:-translate-y-[4px] hover:text-shadow-[4px_4px_4px_rgb(0_0_0_/_1)]"
               )}
+              whileHover={{
+                color: randomColor,
+              }}
+              whileTap={{ color: randomColor }}
+              transition={{ duration: 0.1 }}
+              onMouseEnter={() =>
+                setRandomColor(
+                  colors[Math.floor(Math.random() * colors.length)]
+                )
+              }
+              onMouseLeave={() =>
+                setRandomColor(
+                  colors[Math.floor(Math.random() * colors.length)]
+                )
+              }
             >
               {letter}
-            </div>
+            </motion.div>
           ))}
         </div>
       </Link>
