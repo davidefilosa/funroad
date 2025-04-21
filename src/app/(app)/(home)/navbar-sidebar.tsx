@@ -6,6 +6,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { useTRPC } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import React from "react";
 
@@ -21,6 +23,8 @@ interface Props {
 }
 
 export const NavbarSidebar = ({ items, open, onOpenChange }: Props) => {
+  const trpc = useTRPC();
+  const session = useQuery(trpc.auth.session.queryOptions());
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="p-0 transition-none">
@@ -40,20 +44,32 @@ export const NavbarSidebar = ({ items, open, onOpenChange }: Props) => {
             </Link>
           ))}
           <div className="border-t">
-            <Button
-              className="justify-start border-l border-t-0 border-b-0 border-r-0 w-full  bg-white hover:bg-pink-400 transition text-lg rounded-none"
-              variant={"secondary"}
-              asChild
-            >
-              <Link href={"/sign-in"}>Log in</Link>
-            </Button>
-            <Button
-              className="justify-start border-l border-t-0 border-b-0 border-r-0 w-full  bg-black text-white hover:bg-pink-400 hover:text-black transition text-lg rounded-none"
-              variant={"secondary"}
-              asChild
-            >
-              <Link href={"sign-up"}>Start Selling</Link>
-            </Button>
+            {session.data?.user ? (
+              <Button
+                className="justify-start border-l border-t-0 border-b-0 border-r-0 w-full  bg-black text-white hover:bg-pink-400 hover:text-black transition text-lg rounded-none"
+                variant={"secondary"}
+                asChild
+              >
+                <Link href={"/dashboard"}>Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Button
+                  className="justify-start border-l border-t-0 border-b-0 border-r-0 w-full  bg-white hover:bg-pink-400 transition text-lg rounded-none"
+                  variant={"secondary"}
+                  asChild
+                >
+                  <Link href={"/sign-in"}>Log in</Link>
+                </Button>
+                <Button
+                  className="justify-start border-l border-t-0 border-b-0 border-r-0 w-full  bg-black text-white hover:bg-pink-400 hover:text-black transition text-lg rounded-none"
+                  variant={"secondary"}
+                  asChild
+                >
+                  <Link href={"sign-up"}>Start Selling</Link>
+                </Button>
+              </>
+            )}
           </div>
         </ScrollArea>
       </SheetContent>

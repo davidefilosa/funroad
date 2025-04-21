@@ -19,7 +19,7 @@ import Link from "next/link";
 import { Poppins } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 const poppins = Poppins({ subsets: ["latin"], weight: "700" });
@@ -27,10 +27,14 @@ const poppins = Poppins({ subsets: ["latin"], weight: "700" });
 export const SignInView = () => {
   const router = useRouter();
   const trpc = useTRPC();
-  const register = useMutation(
+  const queryClient = useQueryClient();
+  const login = useMutation(
     trpc.auth.login.mutationOptions({
       onError: (e) => toast.error(e.message),
-      onSuccess: () => router.push("/"),
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(trpc.auth.session.queryFilter());
+        router.push("/");
+      },
     })
   );
 
@@ -46,7 +50,7 @@ export const SignInView = () => {
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    register.mutate(values);
+    login.mutate(values);
   }
 
   return (
@@ -109,7 +113,7 @@ export const SignInView = () => {
               type="submit"
               variant={"elevated"}
               className="bg-black text-white hover:bg-pink-400 hover:text-black"
-              disabled={register.isPending}
+              disabled={login.isPending}
             >
               Create account
             </Button>

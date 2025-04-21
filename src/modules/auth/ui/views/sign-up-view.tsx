@@ -20,7 +20,7 @@ import Link from "next/link";
 import { Poppins } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 const poppins = Poppins({ subsets: ["latin"], weight: "700" });
@@ -28,10 +28,14 @@ const poppins = Poppins({ subsets: ["latin"], weight: "700" });
 export const SignUpView = () => {
   const router = useRouter();
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
   const register = useMutation(
     trpc.auth.register.mutationOptions({
       onError: (e) => toast.error(e.message),
-      onSuccess: () => router.push("/"),
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(trpc.auth.session.queryFilter());
+        router.push("/");
+      },
     })
   );
 

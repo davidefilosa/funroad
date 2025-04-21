@@ -9,6 +9,8 @@ import { NavbarSidebar } from "./navbar-sidebar";
 import { useState } from "react";
 import { MenuIcon } from "lucide-react";
 import { motion } from "motion/react";
+import { useTRPC } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
 
 const poppins = Poppins({ subsets: ["latin"], weight: "700" });
 
@@ -60,6 +62,9 @@ export const Navbar = () => {
   const [randomColor, setRandomColor] = useState(
     colors[Math.floor(Math.random() * colors.length)]
   );
+  const trpc = useTRPC();
+  const session = useQuery(trpc.auth.session.queryOptions());
+
   return (
     <nav className="h-20 flex border-b justify-between font-medium bg-white">
       <Link href={"/"} className="pl-6 flex items-center">
@@ -113,20 +118,32 @@ export const Navbar = () => {
         ))}
       </div>
       <div className="hidden lg:flex">
-        <Button
-          className="border-l border-t-0 border-b-0 border-r-0 h-full px-12 bg-white hover:bg-pink-400 transition text-lg rounded-none"
-          variant={"secondary"}
-          asChild
-        >
-          <Link href={"/sign-in"}>Log in</Link>
-        </Button>
-        <Button
-          className="border-l border-t-0 border-b-0 border-r-0 h-full px-12 bg-black text-white hover:bg-pink-400 hover:text-black transition text-lg rounded-none"
-          variant={"secondary"}
-          asChild
-        >
-          <Link href={"sign-up"}>Start Selling</Link>
-        </Button>
+        {session.data?.user ? (
+          <Button
+            className="border-l border-t-0 border-b-0 border-r-0 h-full px-12 bg-black text-white hover:bg-pink-400 hover:text-black transition text-lg rounded-none"
+            variant={"secondary"}
+            asChild
+          >
+            <Link href={"/dashboard"}>Dashboard</Link>
+          </Button>
+        ) : (
+          <>
+            <Button
+              className="border-l border-t-0 border-b-0 border-r-0 h-full px-12 bg-white hover:bg-pink-400 transition text-lg rounded-none"
+              variant={"secondary"}
+              asChild
+            >
+              <Link href={"/sign-in"}>Log in</Link>
+            </Button>
+            <Button
+              className="border-l border-t-0 border-b-0 border-r-0 h-full px-12 bg-black text-white hover:bg-pink-400 hover:text-black transition text-lg rounded-none"
+              variant={"secondary"}
+              asChild
+            >
+              <Link href={"sign-up"}>Start Selling</Link>
+            </Button>
+          </>
+        )}
       </div>
       <div className="flex lg:hidden items-center justify-center">
         <Button size={"icon"} onClick={() => setIsSidebarOpen(true)}>
