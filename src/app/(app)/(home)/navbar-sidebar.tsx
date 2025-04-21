@@ -45,14 +45,14 @@ export const NavbarSidebar = ({ items, open, onOpenChange }: Props) => {
               variant={"secondary"}
               asChild
             >
-              <Link href={"/login"}>Log in</Link>
+              <Link href={"/sign-in"}>Log in</Link>
             </Button>
             <Button
               className="justify-start border-l border-t-0 border-b-0 border-r-0 w-full  bg-black text-white hover:bg-pink-400 hover:text-black transition text-lg rounded-none"
               variant={"secondary"}
               asChild
             >
-              <Link href={"login"}>Start Selling</Link>
+              <Link href={"sign-up"}>Start Selling</Link>
             </Button>
           </div>
         </ScrollArea>

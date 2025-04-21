@@ -1,13 +1,15 @@
-import { getQueryClient, trpc } from "@/trpc/server";
-export default async function Home() {
-  const queryClient = getQueryClient();
-  const categories = await queryClient.fetchQuery(
-    trpc.categories.getMany.queryOptions()
-  );
+"use client";
+
+import { useTRPC } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
+
+export default function Home() {
+  const trpc = useTRPC();
+  const { data } = useQuery(trpc.auth.session.queryOptions());
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      {JSON.stringify(categories, null, 2)}
+      {JSON.stringify(data, null, 2)}
     </div>
   );
 }

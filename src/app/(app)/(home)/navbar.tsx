@@ -118,14 +118,14 @@ export const Navbar = () => {
           variant={"secondary"}
           asChild
         >
-          <Link href={"/login"}>Log in</Link>
+          <Link href={"/sign-in"}>Log in</Link>
         </Button>
         <Button
           className="border-l border-t-0 border-b-0 border-r-0 h-full px-12 bg-black text-white hover:bg-pink-400 hover:text-black transition text-lg rounded-none"
           variant={"secondary"}
           asChild
         >
-          <Link href={"login"}>Start Selling</Link>
+          <Link href={"sign-up"}>Start Selling</Link>
         </Button>
       </div>
       <div className="flex lg:hidden items-center justify-center">
