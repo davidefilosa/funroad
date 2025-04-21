@@ -3,26 +3,27 @@
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Category } from "../types";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTRPC } from "@/trpc/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Category } from "@/modules/categories/types";
 
 interface CategorySidebarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  data: Category[];
 }
 export const CategorySidebar = ({
   open,
   onOpenChange,
-  data,
 }: CategorySidebarProps) => {
+  const trpc = useTRPC();
+  const { data } = useSuspenseQuery(trpc.categories.getMany.queryOptions());
   const router = useRouter();
   const [parentCategories, setParentCategories] = useState<Category[] | null>(
     null

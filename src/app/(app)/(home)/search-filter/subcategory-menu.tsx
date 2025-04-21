@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
+import { Category } from "@/modules/categories/types";
 import Link from "next/link";
 import React from "react";
-import { Category } from "../types";
 
 interface SubcategoryMenuProps {
   isOpen?: boolean;

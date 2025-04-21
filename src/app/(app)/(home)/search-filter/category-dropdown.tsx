@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 import React, { useRef, useState } from "react";
 import { useDropdownPosition } from "./use-dropdown-position";
 import { SubcategoryMenu } from "./subcategory-menu";
-import { Category } from "../types";
 import Link from "next/link";
+import { Category } from "@/modules/categories/types";
 
 interface CategoryDropdownProps {
   category: Category;
