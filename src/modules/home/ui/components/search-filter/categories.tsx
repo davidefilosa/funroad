@@ -7,8 +7,12 @@ import { ListFilterIcon } from "lucide-react";
 import { CategorySidebar } from "./category-sidebar";
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 
 export const Categories = () => {
+  const params = useParams();
+  const category = params.category as string | undefined;
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(trpc.categories.getMany.queryOptions());
   const containerRef = useRef<HTMLDivElement>(null);
@@ -18,7 +22,7 @@ export const Categories = () => {
   const [visibleCount, setVisibleCount] = useState(data.length);
   const [isAnyHoverered, setIsAnyHovered] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeCategory, setActiveGategory] = useState("all");
+  const activeCategory = category || "all";
 
   const activeCategoryIndex = data.findIndex(
     (category) => category.slug === activeCategory
@@ -67,7 +71,7 @@ export const Categories = () => {
             <CategoryDropdown
               category={category}
               isActive={category.slug === activeCategory}
-              isNavigationHovered={false}
+              isNavigationHovered={isAnyHoverered}
             />
           </div>
         ))}
@@ -88,7 +92,7 @@ export const Categories = () => {
               "bg-white border-primary"
           )}
         >
-          All
+          <Link href={"/"}>All</Link>
         </Button>
         {data.slice(0, visibleCount).map((category) => (
           <div key={category.id}>

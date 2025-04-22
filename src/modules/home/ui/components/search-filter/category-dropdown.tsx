@@ -21,7 +21,6 @@ export const CategoryDropdown = ({
 }: CategoryDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropDownref = useRef<HTMLDivElement>(null);
-
   const { getDropdownPosition } = useDropdownPosition(dropDownref);
   const dropdownPosition = getDropdownPosition();
 

@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Category } from "@/modules/categories/types";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -47,6 +48,11 @@ export const SubcategoryMenu = ({
               {subcategory.name}
             </Link>
           ))}
+        </div>
+        <div className="w-full h-32 relative flex justify-end">
+          <div className="overflow-hidden size-full  absolute -right-4 -bottom-4">
+            <Image fill alt={category.name} src={`/${category.slug}.svg`} />
+          </div>
         </div>
       </div>
     </div>
