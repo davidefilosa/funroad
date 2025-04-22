@@ -33,7 +33,7 @@ export const BreadcrumbNavigation = ({
                   {categoryName}
                 </BreadcrumbLink>
               ) : (
-                <> {categoryName}</>
+                <BreadcrumbPage>{categoryName}</BreadcrumbPage>
               )}
             </BreadcrumbItem>
             {subcategoryName && (
