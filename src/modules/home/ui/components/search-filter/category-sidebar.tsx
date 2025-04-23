@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Sheet,
   SheetContent,
@@ -36,7 +34,7 @@ export const CategorySidebar = ({
 
   const handleCategoryClick = (category: Category) => {
     if (category.subcategories && category.subcategories.length > 0) {
-      setParentCategories(category.subcategories);
+      setParentCategories(category.subcategories as Category[]);
       setSelectedCategory(category);
     } else {
       if (parentCategories && selectedCategory) {
