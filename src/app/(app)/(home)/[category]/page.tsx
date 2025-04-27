@@ -15,10 +15,11 @@ const CategoryPage = async ({ params, searchParams }: CategoryPageProps) => {
   const filters = await loadProductFilters(searchParams);
 
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(
-    trpc.products.getMany.queryOptions({
+  void queryClient.prefetchInfiniteQuery(
+    trpc.products.getMany.infiniteQueryOptions({
       category,
       ...filters,
+      limit: 10,
     })
   );
 

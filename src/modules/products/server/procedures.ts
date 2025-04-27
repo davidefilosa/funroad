@@ -1,4 +1,4 @@
-import { Category, Media } from "@/payload-types";
+import { Category, Media, Tenant } from "@/payload-types";
 import { baseProcedure, createTRPCRouter } from "@/trpc/init";
 import { Sort, Where } from "payload";
 import { z } from "zod";
@@ -14,6 +14,7 @@ export const productsRouter = createTRPCRouter({
         sort: z.enum(["curated", "trending", "hot_and_new"]).optional(),
         cursor: z.number().default(1),
         limit: z.number().default(10),
+        tenantSlug: z.string().nullable().optional(),
       })
     )
     .query(async ({ input, ctx }) => {
@@ -38,6 +39,12 @@ export const productsRouter = createTRPCRouter({
         } else {
           where.price = { less_than_equal: input.maxPrice };
         }
+      }
+
+      if (input.tenantSlug) {
+        where["tenant.slug"] = {
+          equals: input.tenantSlug,
+        };
       }
 
       if (input.category) {
@@ -77,24 +84,46 @@ export const productsRouter = createTRPCRouter({
         if (input.tags && input.tags.length > 0) {
           where["tags.name"] = { in: input.tags };
         }
-
-        const data = await ctx.payload.find({
-          collection: "products",
-          depth: 1, // populate category and image
-          pagination: true,
-          where: where,
-          sort: sort,
-          page: input.cursor,
-          limit: input.limit,
-        });
-
-        return {
-          ...data,
-          docs: data.docs.map((doc) => ({
-            ...doc,
-            image: doc.image as Media | null,
-          })),
-        };
       }
+
+      const data = await ctx.payload.find({
+        collection: "products",
+        depth: 2, // populate category and image
+        pagination: true,
+        where: where,
+        sort: sort,
+        page: input.cursor,
+        limit: input.limit,
+      });
+
+      return {
+        ...data,
+        docs: data.docs.map((doc) => ({
+          ...doc,
+          image: doc.image as Media | null,
+          tenant: doc.tenant as Tenant & {
+            image: Media | null;
+          },
+        })),
+      };
+    }),
+  getOne: baseProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(async ({ input, ctx }) => {
+      const product = await ctx.payload.findByID({
+        collection: "products",
+        id: input.id,
+        depth: 2, // populate category and image
+      });
+
+      return {
+        ...product,
+        image: product.image as Media | null,
+        tenant: product.tenant as Tenant & { image: Media | null },
+      };
     }),
 });

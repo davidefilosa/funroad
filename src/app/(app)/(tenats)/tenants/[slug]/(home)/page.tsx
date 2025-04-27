@@ -1,33 +1,34 @@
-import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
-import type { SearchParams } from "nuqs/server";
 import { loadProductFilters } from "@/modules/products/hooks/searchParams";
 import { ProductListView } from "@/modules/products/ui/views/product-list.view";
+import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
+import { SearchParams } from "nuqs/server";
+import React from "react";
 
-interface HomeProps {
-  params: Promise<{
-    category: string;
-  }>;
+interface TenantPageProps {
   searchParams: Promise<SearchParams>;
+  params: Promise<{
+    slug: string;
+  }>;
 }
 
-const Home = async ({ params, searchParams }: HomeProps) => {
-  const { category } = await params;
+const TenantPage = async ({ params, searchParams }: TenantPageProps) => {
+  const { slug } = await params;
   const filters = await loadProductFilters(searchParams);
 
   const queryClient = getQueryClient();
   void queryClient.prefetchInfiniteQuery(
     trpc.products.getMany.infiniteQueryOptions({
-      category,
       ...filters,
       limit: 10,
+      tenantSlug: slug,
     })
   );
 
   return (
     <HydrateClient>
-      <ProductListView />
+      <ProductListView slug={slug} />
     </HydrateClient>
   );
 };
 
-export default Home;
+export default TenantPage;

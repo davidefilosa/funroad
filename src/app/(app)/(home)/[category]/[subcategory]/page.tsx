@@ -15,9 +15,10 @@ const SubcategoryPage = async ({ params }: SubcategoryPageProps) => {
   const { category, subcategory } = await params;
 
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(
-    trpc.products.getMany.queryOptions({
+  void queryClient.prefetchInfiniteQuery(
+    trpc.products.getMany.infiniteQueryOptions({
       category: subcategory,
+      limit: 10,
     })
   );
 

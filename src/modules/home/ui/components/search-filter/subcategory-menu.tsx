@@ -7,14 +7,9 @@ import React from "react";
 interface SubcategoryMenuProps {
   isOpen?: boolean;
   category: Category;
-  position: { top: number; left: number };
 }
 
-export const SubcategoryMenu = ({
-  isOpen,
-  category,
-  position,
-}: SubcategoryMenuProps) => {
+export const SubcategoryMenu = ({ isOpen, category }: SubcategoryMenuProps) => {
   if (
     !isOpen ||
     !category.subcategories ||
@@ -27,10 +22,10 @@ export const SubcategoryMenu = ({
 
   return (
     <div
-      className={cn("fixed z-100 ")}
+      className={cn("absolute z-50 ")}
       style={{
-        top: position.top,
-        left: position.left,
+        top: "100%",
+        left: 0,
       }}
     >
       <div className="h-3 w-60" />

@@ -1,10 +1,7 @@
 "use client";
 
 import { useTRPC } from "@/trpc/client";
-import {
-  keepPreviousData,
-  useSuspenseInfiniteQuery,
-} from "@tanstack/react-query";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import React from "react";
 import { useProductFilter } from "../../hooks/use-product-filter";
 import { ProductCard, ProductCardSkeleton } from "./product-card";
@@ -13,22 +10,28 @@ import { InboxIcon } from "lucide-react";
 
 interface ProductListProps {
   category?: string;
+  slug?: string;
 }
 
-export const ProductList = ({ category }: ProductListProps) => {
+export const ProductList = ({ category, slug }: ProductListProps) => {
   const [filters] = useProductFilter();
   const trpc = useTRPC();
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useSuspenseInfiniteQuery(
-      trpc.products.getMany.infiniteQueryOptions(
-        { ...filters, category, limit: 2 },
-        {
-          placeholderData: keepPreviousData,
-          getNextPageParam: (lastPage) =>
-            lastPage.docs.length > 0 ? lastPage.nextPage : undefined,
-        }
-      )
-    );
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    error,
+  } = useSuspenseInfiniteQuery(
+    trpc.products.getMany.infiniteQueryOptions(
+      { ...filters, category, limit: 10, tenantSlug: slug },
+      {
+        getNextPageParam: (lastPage) =>
+          lastPage.docs.length > 0 ? lastPage.nextPage : undefined,
+      }
+    )
+  );
 
   if (data?.pages?.[0]?.docs.length === 0) {
     return (
@@ -48,14 +51,13 @@ export const ProductList = ({ category }: ProductListProps) => {
               key={product.id}
               id={product.id}
               name={product.name}
-              authorUsername="Davide"
-              authorImageUrl={
-                "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              }
+              authorUsername={product.tenant?.name}
+              authorImageUrl={product.tenant?.image?.url}
               imageUrl={product.image?.url}
               price={product.price}
               reviewRating={4.5}
               reviewCount={100}
+              tenantSlug={product.tenant?.slug}
             />
           ))
         )}

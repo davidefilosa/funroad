@@ -5,10 +5,11 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 interface CategoryPageProps {
-  category: string;
+  category?: string;
+  slug?: string;
 }
 
-export const ProductListView = ({ category }: CategoryPageProps) => {
+export const ProductListView = ({ category, slug }: CategoryPageProps) => {
   return (
     <div className="px-4 lg:px-12 py-8 flex flex-col gap-4">
       <ProductSort />
@@ -19,7 +20,7 @@ export const ProductListView = ({ category }: CategoryPageProps) => {
         <div className="lg:col-span-4 xl:col-span-6">
           <ErrorBoundary fallback={<div>Something went wrong...</div>}>
             <Suspense fallback={<ProductListSkeleton />}>
-              <ProductList category={category} />
+              <ProductList category={category} slug={slug} />
             </Suspense>
           </ErrorBoundary>
         </div>

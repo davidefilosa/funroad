@@ -135,28 +135,25 @@ const categories = [
 
 const seed = async () => {
   const payload = await getPayload({ config });
-  for (const category of categories) {
-    const parentCategory = await payload.create({
-      collection: "categories",
-      data: {
-        name: category.name,
-        slug: category.slug,
-        color: category.color,
-        parent: null,
-      },
-    });
 
-    for (const subcategory of category.subcategories || []) {
-      await payload.create({
-        collection: "categories",
-        data: {
-          name: subcategory.name,
-          slug: subcategory.slug,
-          parent: parentCategory.id,
-        },
-      });
-    }
-  }
+  const tenant = await payload.create({
+    collection: "tenants",
+    data: {
+      name: "davidef",
+      slug: "davidef",
+      stripeAccount: "test",
+    },
+  });
+  await payload.create({
+    collection: "users",
+    data: {
+      email: "davidefilosa7@gmail.com",
+      password: "Vesuviana290784df!",
+      roles: ["user"],
+      username: "davidef",
+      tenants: [{ tenant: tenant.id }],
+    },
+  });
 };
 
 await seed();
