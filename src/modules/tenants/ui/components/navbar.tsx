@@ -1,10 +1,29 @@
 "use client";
 
 import { generateTenantUrl } from "@/lib/utils";
+// import { CheckoutButton } from "@/modules/checkout/ui/components/checkout-button";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
+import { LoaderIcon } from "lucide-react";
+
+const CheckoutButton = dynamic(
+  () =>
+    import("@/modules/checkout/ui/components/checkout-button").then(
+      (mod) => mod.CheckoutButton
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <Button disabled variant={"elevated"}>
+        <LoaderIcon className="animate-spin" />
+      </Button>
+    ),
+  }
+);
 
 interface NavbarProps {
   tenantSlug: string;
@@ -36,6 +55,7 @@ export const Navbar = ({ tenantSlug }: NavbarProps) => {
             <p className="text-xl">{tenant?.name}</p>
           </div>
         </Link>
+        <CheckoutButton tenantSlug={tenant.slug} />
       </div>
     </nav>
   );

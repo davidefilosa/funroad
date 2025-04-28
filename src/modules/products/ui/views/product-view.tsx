@@ -3,28 +3,114 @@
 import { StarRating } from "@/components/star-rating";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice, generateTenantUrl } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
-import { LinkIcon, StarIcon } from "lucide-react";
+import { LinkIcon, LoaderIcon, StarIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { Fragment, Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import dynamic from "next/dynamic";
+// import { CartButton } from "../components/cart-button";
+
+const CartButton = dynamic(
+  () => import("../components/cart-button").then((mod) => mod.CartButton),
+  {
+    ssr: false,
+    loading: () => (
+      <Button variant={"elevated"} className="flex-1" disabled>
+        <LoaderIcon className="size-4 animate-spin" />
+      </Button>
+    ),
+  }
+);
 
 interface ProductViewProps {
   productId: string;
   slug: string;
 }
 
+const ProductViewSkeleton = () => {
+  return (
+    <div className="px-4 lg:px-12 py-10">
+      <div className="border rounded-sm bg-white overflow-hidden">
+        <div className="relative aspect-[3.9] border-b">
+          <Skeleton className="w-full h-full absolute inset-0" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-6">
+          <div className="col-span-4">
+            <div className="p-6">
+              <Skeleton className="h-10 w-1/2" />
+            </div>
+            <div className="border-y flex">
+              <div className="px-6 py-4 flex items-center justify-center border-r">
+                <Skeleton className="h-8 w-24" />
+              </div>
+              <div className="px-6 py-4 flex items-center justify-center lg:border-r">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-5 w-5 rounded-full" />
+                  <Skeleton className="h-5 w-20" />
+                </div>
+              </div>
+              <div className="hidden lg:flex px-6 py-4 items-center justify-center">
+                <Skeleton className="h-5 w-24" />
+              </div>
+            </div>
+            <div className="block lg:hidden px-6 py-4 items-center justify-center border-b">
+              <Skeleton className="h-5 w-24" />
+            </div>
+            <div className="p-6 space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/6" />
+            </div>
+          </div>
+          <div className="col-span-2">
+            <div className="border-t lg:border-t-0 lg:border-l h-full">
+              <div className="flex flex-col gap-4 p-6 border-b">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-10 flex-1" />
+                  <Skeleton className="h-10 w-12" />
+                </div>
+                <Skeleton className="h-4 w-1/2 mx-auto" />
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-6 w-24" />
+                  <div className="flex items-center gap-1">
+                    <Skeleton className="h-4 w-8" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-[auto_1fr_auto] gap-3 mt-4">
+                  {[5, 4, 3, 2, 1].map((stars) => (
+                    <Fragment key={stars}>
+                      <Skeleton className="h-4 w-12" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-8" />
+                    </Fragment>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const ProductView = ({ productId, slug }: ProductViewProps) => {
   const trpc = useTRPC();
   const { data } = useQuery(
     trpc.products.getOne.queryOptions({ id: productId })
   );
+
   return (
     <ErrorBoundary fallback={<div>Something went wrong...</div>}>
-      <Suspense fallback={<div>Loading</div>}>
+      <Suspense fallback={<ProductViewSkeleton />}>
         <div className="px-4 lg:px-12 py-10">
           <div className="border rounded-sm bg-white overflow-hidden">
             <div className="relative aspect-[3.9] border-b">
@@ -91,12 +177,7 @@ export const ProductView = ({ productId, slug }: ProductViewProps) => {
                 <div className="border-t lg:border-t-0 lg:border-l h-full">
                   <div className="flex flex-col gap-4 p-6 border-b">
                     <div className="flex items-center gap-2">
-                      <Button
-                        variant={"elevated"}
-                        className="flex-1 bg-pink-400"
-                      >
-                        Add to cart
-                      </Button>
+                      <CartButton tenantSlug={slug} productId={productId} />
                       <Button className="size-12" variant={"elevated"}>
                         <LinkIcon />
                       </Button>
