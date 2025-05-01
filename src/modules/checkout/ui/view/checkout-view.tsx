@@ -3,25 +3,55 @@
 import React, { useEffect } from "react";
 import { useCart } from "../../hooks/use-cart";
 import { useTRPC } from "@/trpc/client";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CheckoutItem } from "../components/checkout-item";
 import { cn, generateTenantUrl } from "@/lib/utils";
 import { CheckoutSidebar } from "../components/checkout-sidebar";
-import { InboxIcon, LoaderIcon } from "lucide-react";
+import { InboxIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCheckoutStates } from "../../hooks/use-checkout-states";
+import { useRouter } from "next/navigation";
 
 interface CheckoutViewProps {
   slug: string;
 }
 
 export const CheckoutView = ({ slug }: CheckoutViewProps) => {
-  const { productIds, clearAllCarts, removeProductFromCart } = useCart(slug);
+  const { productIds, clearAllCarts, removeProductFromCart, clearCart } =
+    useCart(slug);
+  const [states, setStates] = useCheckoutStates();
+  const router = useRouter();
 
   const trpc = useTRPC();
   const { data, error, isLoading } = useQuery(
     trpc.checkout.getProducts.queryOptions({ ids: productIds })
   );
+
+  const purchase = useMutation(
+    trpc.checkout.purchase.mutationOptions({
+      onMutate: () => {
+        setStates({ success: false, cancel: false });
+      },
+      onSuccess: (data) => {
+        window.location.href = data.url;
+      },
+      onError: (error) => {
+        if (error.data?.code === "UNAUTHORIZED") {
+          router.push("/sign-in");
+        }
+        toast.error(error.message);
+      },
+    })
+  );
+
+  useEffect(() => {
+    if (states.success) {
+      setStates({ success: false, cancel: false });
+      clearCart();
+      router.push("/products");
+    }
+  }, [states.success, clearCart, router, setStates]);
 
   useEffect(() => {
     if (error && error.data?.code === "NOT_FOUND") {
@@ -105,9 +135,11 @@ export const CheckoutView = ({ slug }: CheckoutViewProps) => {
         <div className="lg:col-span-3">
           <CheckoutSidebar
             total={data?.total || 0}
-            onCheckout={() => {}}
-            isCanceled={false}
-            isPending={false}
+            onCheckout={() => {
+              purchase.mutate({ productsId: productIds, tenantSlug: slug });
+            }}
+            isCanceled={states.cancel}
+            isPending={purchase.isPending}
           />
         </div>
       </div>
