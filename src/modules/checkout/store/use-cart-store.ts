@@ -11,7 +11,6 @@ interface CartState {
   removeProductFromCart: (tenantSlug: string, productId: string) => void;
   clearCart: (tenantSlug: string) => void;
   clearAllCarts: () => void;
-  getCartByTenant: (tenantSlug: string) => string[];
 }
 
 export const useCartStore = create<CartState>()(
@@ -55,8 +54,6 @@ export const useCartStore = create<CartState>()(
         set(() => ({
           tenantsCarts: {},
         })),
-      getCartByTenant: (tenantSlug: string) =>
-        get().tenantsCarts[tenantSlug]?.productIds || [],
     }),
 
     { name: "funroad-cart", storage: createJSONStorage(() => localStorage) }

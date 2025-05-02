@@ -10,6 +10,7 @@ import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { SearchInput } from "./search-input";
 
 export const Categories = () => {
   const params = useParams();
@@ -62,6 +63,7 @@ export const Categories = () => {
   return (
     <div className="w-full relative">
       <CategorySidebar open={isSidebarOpen} onOpenChange={setIsSidebarOpen} />
+
       <div
         ref={measureRef}
         className="absolute opacity-0 pointer-events-none flex"
@@ -77,7 +79,6 @@ export const Categories = () => {
           </div>
         ))}
       </div>
-
       <div
         className="flex flex-nowrap items-center"
         ref={containerRef}
