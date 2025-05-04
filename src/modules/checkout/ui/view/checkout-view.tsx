@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useCart } from "../../hooks/use-cart";
 import { useTRPC } from "@/trpc/client";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { CheckoutItem } from "../components/checkout-item";
 import { cn, generateTenantUrl } from "@/lib/utils";
@@ -22,6 +22,7 @@ export const CheckoutView = ({ slug }: CheckoutViewProps) => {
     useCart(slug);
   const [states, setStates] = useCheckoutStates();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const trpc = useTRPC();
   const { data, error, isLoading } = useQuery(
@@ -47,11 +48,12 @@ export const CheckoutView = ({ slug }: CheckoutViewProps) => {
 
   useEffect(() => {
     if (states.success) {
+      queryClient.invalidateQueries(trpc.library.getMany.infiniteQueryFilter());
+      router.push("/library");
       setStates({ success: false, cancel: false });
       clearCart();
-      router.push("/products");
     }
-  }, [states.success, clearCart, router, setStates]);
+  }, [states.success, clearCart, router, setStates, trpc.library.getMany]);
 
   useEffect(() => {
     if (error && error.data?.code === "NOT_FOUND") {
