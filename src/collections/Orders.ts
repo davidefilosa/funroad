@@ -1,7 +1,14 @@
+import { isSuperUser } from "@/lib/access";
 import type { CollectionConfig } from "payload";
 
 export const Orders: CollectionConfig = {
   slug: "orders",
+  access: {
+    create: ({ req }) => isSuperUser(req.user),
+    delete: ({ req }) => isSuperUser(req.user),
+    update: ({ req }) => isSuperUser(req.user),
+    read: ({ req }) => isSuperUser(req.user),
+  },
   admin: { useAsTitle: "name" },
 
   fields: [

@@ -171,7 +171,7 @@ export interface Tenant {
   image?: (string | null) | Media;
   stripeAccount: string;
   /**
-   * You cannot create products until you submit your Stripe details
+   * Stripe details associated with your shop
    */
   stripeDetailsSubmitted?: boolean | null;
   updatedAt: string;
@@ -230,6 +230,10 @@ export interface Product {
   category?: (string | null) | Category;
   image?: (string | null) | Media;
   refundPolicy?: ('30-day' | '14-day' | 'No refund' | 'Store credit only') | null;
+  /**
+   * Protected content only visible after purchase. Add prooduct documentation, downloadable files, getting start guides. Supports markdown formatting.
+   */
+  content?: string | null;
   tags?: (string | Tag)[] | null;
   updatedAt: string;
   createdAt: string;
@@ -418,6 +422,7 @@ export interface ProductsSelect<T extends boolean = true> {
   category?: T;
   image?: T;
   refundPolicy?: T;
+  content?: T;
   tags?: T;
   updatedAt?: T;
   createdAt?: T;

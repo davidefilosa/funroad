@@ -1,7 +1,13 @@
+import { isSuperUser } from "@/lib/access";
 import type { CollectionConfig } from "payload";
 
 export const Tenants: CollectionConfig = {
   slug: "tenants",
+  access: {
+    read: () => true,
+    create: ({ req }) => isSuperUser(req.user),
+    delete: ({ req }) => isSuperUser(req.user),
+  },
   admin: {
     useAsTitle: "slug",
   },
@@ -31,15 +37,14 @@ export const Tenants: CollectionConfig = {
       name: "stripeAccount",
       type: "text",
       required: true,
-      admin: { readOnly: true },
+      access: { update: ({ req }) => isSuperUser(req.user) },
     },
     {
       name: "stripeDetailsSubmitted",
       type: "checkbox",
       admin: {
         readOnly: true,
-        description:
-          "You cannot create products until you submit your Stripe details",
+        description: "Stripe details associated with your shop",
       },
     },
   ],

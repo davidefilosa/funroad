@@ -7,12 +7,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatPrice, generateTenantUrl } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
-import { LinkIcon, LoaderIcon, StarIcon } from "lucide-react";
+import { CheckIcon, LinkIcon, LoaderIcon, StarIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { Fragment, Suspense } from "react";
+import React, { Fragment, Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 // import { CartButton } from "../components/cart-button";
 
 const CartButton = dynamic(
@@ -103,6 +104,7 @@ const ProductViewSkeleton = () => {
 };
 
 export const ProductView = ({ productId, slug }: ProductViewProps) => {
+  const [isCoping, setIsCopying] = useState(false);
   const trpc = useTRPC();
   const { data } = useQuery(
     trpc.products.getOne.queryOptions({ id: productId })
@@ -154,13 +156,19 @@ export const ProductView = ({ productId, slug }: ProductViewProps) => {
                   </div>
                   <div className="hidden lg:flex px-6 py-4 items-center justify-center">
                     <div className="flex items-center gap-1">
-                      <StarRating rating={3} text={`100 ratings`} />
+                      <StarRating
+                        rating={data?.reviewRating || 0}
+                        text={`${data?.reviewsCount} ${data?.reviewsCount === 1 ? "rating" : "ratings"}`}
+                      />
                     </div>
                   </div>
                 </div>
                 <div className="block lg:hidden px-6 py-4 items-center justify-center border-b">
                   <div className="flex items-center gap-1">
-                    <StarRating rating={3} text={`100 ratings`} />
+                    <StarRating
+                      rating={data?.reviewRating || 0}
+                      text={`${data?.reviewsCount} ${data?.reviewsCount === 1 ? "rating" : "ratings"}`}
+                    />
                   </div>
                 </div>
                 <div className="p-6">
@@ -182,8 +190,20 @@ export const ProductView = ({ productId, slug }: ProductViewProps) => {
                         productId={productId}
                         isPurchased={data?.isPurchased}
                       />
-                      <Button className="size-12" variant={"elevated"}>
-                        <LinkIcon />
+                      <Button
+                        className="size-12"
+                        variant={"elevated"}
+                        onClick={() => {
+                          setIsCopying(true);
+                          navigator.clipboard.writeText(window.location.href);
+                          toast.success("Url copied to clipboard");
+                          setTimeout(() => {
+                            setIsCopying(false);
+                          }, 2000);
+                        }}
+                        disabled={isCoping}
+                      >
+                        {isCoping ? <CheckIcon /> : <LinkIcon />}
                       </Button>
                     </div>
                     <p className="text-center font-medium">
@@ -197,8 +217,8 @@ export const ProductView = ({ productId, slug }: ProductViewProps) => {
                       <h3 className="text-xl font-medium">Ratings</h3>
                       <div className="flex items-center gap-x-1 font-medium">
                         <StarIcon className="size-4 fill-black" />
-                        <p>({5})</p>
-                        <p className="text-base">{100} ratings</p>
+                        <p>({data?.reviewRating})</p>
+                        <p className="text-base">{`${data?.reviewsCount} ${data?.reviewsCount === 1 ? "rating" : "ratings"}`}</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-[auto_1fr_auto] gap-3 mt-4">
@@ -208,10 +228,12 @@ export const ProductView = ({ productId, slug }: ProductViewProps) => {
                             {stars} {stars === 1 ? "star" : "stars"}
                           </div>
                           <Progress
-                            value={5 * Math.random() * 20}
+                            value={data?.ratingDistribution[stars] || 0}
                             className="h-[1lh]"
                           />
-                          <div className="font-medium ">{stars * 20}%</div>
+                          <div className="font-medium ">
+                            {data?.ratingDistribution[stars] || 0}%
+                          </div>
                         </Fragment>
                       ))}
                     </div>

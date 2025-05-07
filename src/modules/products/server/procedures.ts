@@ -95,11 +95,36 @@ export const productsRouter = createTRPCRouter({
         sort: sort,
         page: input.cursor,
         limit: input.limit,
+        select: { content: false },
       });
+
+      const dataWithSummarizedReviews = await Promise.all(
+        data.docs.map(async (doc) => {
+          const reviewsData = await ctx.payload.find({
+            collection: "reviews",
+            pagination: false,
+            where: {
+              product: {
+                equals: doc.id,
+              },
+            },
+          });
+
+          return {
+            ...doc,
+            reviewsCount: reviewsData.totalDocs,
+            reviewRating:
+              reviewsData.docs.length === 0
+                ? 0
+                : reviewsData.docs.reduce((acc, doc) => acc + doc.rating, 0) /
+                  reviewsData.totalDocs,
+          };
+        })
+      );
 
       return {
         ...data,
-        docs: data.docs.map((doc) => ({
+        docs: dataWithSummarizedReviews.map((doc) => ({
           ...doc,
           image: doc.image as Media | null,
           tenant: doc.tenant as Tenant & {
@@ -122,6 +147,7 @@ export const productsRouter = createTRPCRouter({
         collection: "products",
         id: input.id,
         depth: 2, // populate category and image
+        select: { content: false },
       });
 
       let isPurchased = false;
@@ -150,9 +176,53 @@ export const productsRouter = createTRPCRouter({
         isPurchased = orderData.totalDocs > 0;
       }
 
+      const reviews = await ctx.payload.find({
+        collection: "reviews",
+        pagination: false,
+        where: {
+          product: {
+            equals: product.id,
+          },
+        },
+      });
+
+      const reviewRating =
+        reviews.docs.length === 0
+          ? 0
+          : reviews.docs.reduce((acc, doc) => acc + doc.rating, 0) /
+            reviews.totalDocs;
+
+      const ratingDistribution: Record<number, number> = {
+        5: 0,
+        4: 0,
+        3: 0,
+        2: 0,
+        1: 0,
+      };
+
+      if (reviews.docs.length > 0) {
+        reviews.docs.forEach((review) => {
+          const rating = review.rating;
+          if (rating >= 1 && rating <= 5) {
+            ratingDistribution[rating] = (ratingDistribution[rating] || 0) + 1;
+          }
+        });
+
+        Object.keys(ratingDistribution).forEach((key) => {
+          const rating = Number(key);
+          const count = ratingDistribution[rating] || 0;
+          ratingDistribution[rating] = Math.round(
+            (count / reviews.totalDocs) * 100
+          );
+        });
+      }
+
       return {
         ...product,
         isPurchased,
+        reviewsCount: reviews.totalDocs,
+        reviewRating,
+        ratingDistribution,
         image: product.image as Media | null,
         tenant: product.tenant as Tenant & { image: Media | null },
       };
